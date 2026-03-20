@@ -1,0 +1,57 @@
+name: 'Nucleus Verify'
+description: >
+  Deterministic code verification with cryptographically signed certificates.
+  Produces an independently verifiable proof pack and compliance mapping
+  across 11 regulatory frameworks.
+author: 'Alter Menta Technologies'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  api_key:
+    description: 'Nucleus Verify API key (store as GitHub secret)'
+    required: true
+  repo_url:
+    description: 'Repository URL to verify (defaults to current repo)'
+    required: false
+    default: ''
+  fail_on_unverified:
+    description: 'Fail the workflow if verdict is UNVERIFIED'
+    required: false
+    default: 'false'
+  fail_on_findings:
+    description: 'Fail if HIGH or CRITICAL findings exist'
+    required: false
+    default: 'false'
+
+outputs:
+  verdict:
+    description: 'VERIFIED, PARTIAL, or UNVERIFIED'
+  trust_score:
+    description: 'Trust score 0-100'
+  certificate_url:
+    description: 'Public URL of the signed certificate'
+  findings_count:
+    description: 'Total number of findings'
+  high_count:
+    description: 'Number of HIGH severity findings'
+  critical_count:
+    description: 'Number of CRITICAL severity findings'
+  proof_pack_url:
+    description: 'URL to download the proof pack'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Verify with Nucleus
+      shell: bash
+      run: ${{ github.action_path }}/entrypoint.sh
+      env:
+        NUCLEUS_API_KEY: ${{ inputs.api_key }}
+        NUCLEUS_REPO_URL: ${{ inputs.repo_url }}
+        FAIL_ON_UNVERIFIED: ${{ inputs.fail_on_unverified }}
+        FAIL_ON_FINDINGS: ${{ inputs.fail_on_findings }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SERVER_URL: ${{ github.server_url }}
