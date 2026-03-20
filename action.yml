@@ -1,8 +1,5 @@
 name: 'Nucleus Verify'
-description: >
-  Deterministic code verification with cryptographically signed certificates.
-  Produces an independently verifiable proof pack and compliance mapping
-  across 11 regulatory frameworks.
+description: 'Cryptographically signed code verification. Signed certificates. Deterministic proof packs. Independently verifiable.'
 author: 'Alter Menta Technologies'
 
 branding:
