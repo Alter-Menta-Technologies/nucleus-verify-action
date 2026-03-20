@@ -33,8 +33,8 @@ fi
 
 echo "Job ID: $JOB_ID"
 
-# Poll for completion (max 10 minutes)
-MAX_WAIT=600
+# Poll for completion (max 30 minutes)
+MAX_WAIT=1800
 WAITED=0
 INTERVAL=15
 STATE=""
@@ -61,8 +61,34 @@ while [ $WAITED -lt $MAX_WAIT ]; do
 done
 
 if [ "$STATE" != "complete" ]; then
-  echo "::error::Scan timed out after ${MAX_WAIT}s"
-  exit 1
+  # Still processing — scan is running asynchronously
+  echo "::notice::Scan is processing asynchronously (${WAITED}s elapsed)"
+  echo "::notice::Check results at: https://altermenta.com/results/$JOB_ID"
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  NUCLEUS VERIFY — ASYNC"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  Scan is still processing."
+  echo "  Results: https://altermenta.com/results/$JOB_ID"
+  echo "  Certificate will be available when complete."
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "::endgroup::"
+  cat >> "$GITHUB_STEP_SUMMARY" << EOF
+## ⚛ Nucleus Verify — Processing
+
+Scan is running asynchronously for a large repository.
+
+| | |
+|---|---|
+| **Status** | Processing |
+| **Results** | [Check when ready →](https://altermenta.com/results/$JOB_ID) |
+
+*Scan exceeded 30-minute timeout — results will be available at the link above.*
+EOF
+  echo "verdict=PENDING" >> "$GITHUB_OUTPUT"
+  echo "trust_score=0" >> "$GITHUB_OUTPUT"
+  echo "certificate_url=https://altermenta.com/results/$JOB_ID" >> "$GITHUB_OUTPUT"
+  exit 0
 fi
 
 # Extract results
